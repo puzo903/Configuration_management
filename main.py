@@ -1,28 +1,27 @@
-# Цель: создать минимальный прототип. Большинство функций в нем пока
-# представляют собой заглушки, но диалог с пользователем уже поддерживается.
-# Требования:
-# 1. Приложение должно быть реализовано в форме консольного интерфейса
-# (CLI).
-# 2. Приглашение к вводу должно формироваться на основе реальных данных
-# ОС, в которой исполняется эмулятор. Пример: username@hostname:~$.
-# 3. Реализовать парсер, который корректно обрабатывает аргументы в
-# кавычках.
-# 4. Реализовать команды-заглушки, которые выводят свое имя и аргументы: ls,
-# cd.
-# 5. Реализовать команду exit.
-# 6. Продемонстрировать работу прототипа в интерактивном режиме.
-# Необходимо показать примеры работы всей реализованной
-# функциональности, включая обработку ошибок.
-# 7. Результат выполнения этапа сохранить в репозиторий стандартно
-# оформленным коммитом.
-
-
 import os
 import socket
 import getpass
+import sys
+
+# Параметры эмулятора (должны быть установлены при запуске)
+vfs_path = sys.argv[1] if len(sys.argv) > 1 else "/default/vfs/path"
+startup_script = sys.argv[2] if len(sys.argv) > 2 else "/default/startup/script"
+
 
 def pars(x):
     return x.split()
+
+
+def conf_dump():
+    """Команда conf-dump - вывод параметров эмулятора в формате ключ-значение"""
+    print("conf-dump initiating...")
+    print("vfs-path=" + vfs_path)
+    print("startup-script=" + startup_script)
+    print("version=1.0")
+    print("author=" + username)
+    print("hostname=" + hostname)
+    print("current-directory=" + current_dir)
+
 
 username = os.getenv('LOGNAME') or os.getenv('USER') or getpass.getuser() or 'unknown.user'
 hostname = socket.gethostname()
@@ -35,17 +34,27 @@ if current_dir.startswith(home_dir):
 else:
     display_dir = current_dir
 
-
 while True:
-    print(f"{username}@{hostname}:~{display_dir}>")
-    a=input()
+    print(f"{username}@{hostname}:{display_dir}$", end=" ")
+    a = input().strip()
+
     if a == "exit":
         exit()
-    if a[:2] == "ls" or a[:3] == "ls ":
+
+    if pars(a)[0] == "ls":
         print(pars(a))
         continue
-    if a[:2] == "cd" or a[:3] == "cd ":
+
+    if pars(a)[0] == "cd":
         print(pars(a))
         continue
+
+    if pars(a)[0] == "echo":
+        print(a[5:])
+        continue
+    if pars(a)[0] == "conf-dump":
+        conf_dump()
+        continue
+
     else:
-        print(f"{a}: unknown command")
+        print(f"{pars(a)[0]}: command not found")
