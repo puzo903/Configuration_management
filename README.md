@@ -1,3 +1,4 @@
+Вариант 19. ИКБО-70-24.
 
 ## Этап 1: REPL (Read-Eval-Print Loop)
 
